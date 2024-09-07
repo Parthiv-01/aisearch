@@ -3,9 +3,8 @@ import requests
 import toml
 
 # Load the API key and base URL from the config file
-config = toml.load("config.toml")
-api_key = config["auth"]["API_KEY"]
-base_url = config["auth"]["BASE_URL"]
+api_key = st.secrets["auth"]["API_KEY"]
+base_url = st.secrets["auth"]["BASE_URL"]
 
 # Set up headers for the API request
 headers = {
