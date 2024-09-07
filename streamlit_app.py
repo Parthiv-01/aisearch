@@ -34,7 +34,7 @@ def get_ai_response(user_input):
         return f"Error: {response.status_code}, {response.text}"
 
 # Streamlit app interface
-st.title("AI Chat with NVIDIA LLaMA Model")
+st.title("AI Chat")
 
 # Input for user to send to AI
 user_input = st.text_input("You:", placeholder="Type your message here...")
@@ -49,4 +49,4 @@ if st.button("Send"):
         st.warning("Please enter a message to send.")
 
 # Instructions for users
-st.write("Enter a message to chat with the AI powered by NVIDIA's LLaMA model!")
+st.write("Enter a message to chat with the AI")
