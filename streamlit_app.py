@@ -1,21 +1,53 @@
 import streamlit as st
+import requests
 import toml
-from openai import OpenAI
 
-client = OpenAI(
-  base_url = "https://integrate.api.nvidia.com/v1",
-  api_key = "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"
-)
+# Load the API key and base URL from the config file
+config = toml.load("config.toml")
+api_key = config["auth"]["API_KEY"]
+base_url = config["auth"]["BASE_URL"]
 
-completion = client.chat.completions.create(
-  model="meta/llama-3.1-405b-instruct",
-  messages=[{"role":"user","content":"today weather in salt lake, kolkata"}],
-  temperature=0.2,
-  top_p=0.7,
-  max_tokens=1024,
-  stream=True
-)
+# Set up headers for the API request
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json"
+}
 
-for chunk in completion:
-  if chunk.choices[0].delta.content is not None:
-    st.write(chunk.choices[0].delta.content, end="")
+# Function to get a response from the NVIDIA API
+def get_ai_response(user_input):
+    payload = {
+        "model": "meta/llama-3.1-405b-instruct",
+        "messages": [{"role": "user", "content": user_input}],
+        "temperature": 0.2,
+        "top_p": 0.7,
+        "max_tokens": 1024
+    }
+    
+    # Sending request to the NVIDIA API
+    response = requests.post(f"{base_url}/chat/completions", headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        result = response.json()
+        # Access the content from the response
+        ai_message = result['choices'][0]['message']['content']
+        return ai_message
+    else:
+        return f"Error: {response.status_code}, {response.text}"
+
+# Streamlit app interface
+st.title("AI Chat with NVIDIA LLaMA Model")
+
+# Input for user to send to AI
+user_input = st.text_input("You:", placeholder="Type your message here...")
+
+# Button to submit user input and get response
+if st.button("Send"):
+    if user_input:
+        # Fetch the AI response
+        response = get_ai_response(user_input)
+        st.text_area("AI Response:", value=response, height=200)
+    else:
+        st.warning("Please enter a message to send.")
+
+# Instructions for users
+st.write("Enter a message to chat with the AI powered by NVIDIA's LLaMA model!")
